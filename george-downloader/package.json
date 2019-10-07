@@ -1,7 +1,7 @@
 {
   "name": "george-downloader",
   "bin": "./index.js",
-  "version": "1.0.2",
+  "version": "1.0.7",
   "description": "A cli tool that helps you download and configure .grg files",
   "main": "index.js",
   "scripts": {
@@ -13,5 +13,14 @@
   "dependencies": {
     "inquirer": "^7.0.0",
     "node-fetch": "^2.6.0"
-  }
+  },
+  "keywords": [
+    "george",
+    "boole",
+    "waterloo",
+    "automation",
+    "download",
+    "file",
+    ".grg"
+  ]
 }
