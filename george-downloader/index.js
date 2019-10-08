@@ -54,7 +54,11 @@ const fs = require("fs");
 
           let text = await res.text; 
           text = text.slice(3, text.length);
-          text = `#u ${groupMembers[0].trim()} ${groupMembers[1].trim()}\n${text}`; 
+          if (groupMembers.length == 2) {
+            text = `#u ${groupMembers[0].trim()} ${groupMembers[1].trim()}\n${text}`; 
+          } else {
+            text = `#u ${groupMembers[0].trim()}\n${text}`; 
+          }
           
           saveToFile(fileName, await text);
           questionNumber++;
