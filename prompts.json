@@ -1,0 +1,18 @@
+{
+    "destination": {
+        "name": "destination",
+        "type": "input",
+        "message": "Enter the directory where you would like to download the george files",
+        "default": "./"
+    },
+    "assignmentNumber": {
+        "name": "assignmentNumber",
+        "type": "input",
+        "message": "Which assignment would you like to download?"
+    },
+    "groupMembers": {
+        "name": "groupMembers",
+        "type": "input",
+        "message": "Enter comma-separated WatIAM user IDs of your group members"
+    }
+}

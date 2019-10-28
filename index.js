@@ -3,76 +3,61 @@
 const fetch = require("node-fetch");
 const inquirer = require("inquirer");
 const fs = require("fs");
+const prompts = require("./prompts.json");
 
 (async function main() {
   try {
-    inquirer
+    const { assignmentNumber, destination, groupMembers } = await inquirer
       .prompt([
-        {
-          name: "destination",
-          type: "input",
-          message: "Enter the directory where you would like to download the george files",
-          default: "./",
-        },
-        {
-          name: "assignmentNumber",
-          type: "input",
-          message: "Which assignment would you like to download?",
+        prompts["destination"],
+        { ...prompts["assignmentNumber"], 
           validate: (value) => {
             var valid = !isNaN(parseFloat(value));
             return valid || 'Please enter a number';
           },
           filter: Number,
         },
-        {
-          name: "groupMembers",
-          type: "input",
-          message: "Enter comma-separated WatIAM user IDs of your group members"
-        }   
+        prompts["groupMembers"]
       ])
-      .then(async answers => {
-        let { assignmentNumber, destination, groupMembers } = answers;
 
-        groupMembers = groupMembers.split(",");
+      const members = groupMembers.split(",");
 
-        if (groupMembers.length > 2 || groupMembers.length == 0) {
-          throw new Error("Invalid WatIAM user IDs entered");
-        } 
+      if (members.length > 2 || members.length == 0) {
+        throw new Error("Invalid WatIAM user IDs entered");
+      } 
 
-        let questionNumber = 1;
+      let questionNumber = 1;
 
-        let assignmentUrl = `https://www.student.cs.uwaterloo.ca/~se212/asn/a0${assignmentNumber}grg/a0${assignmentNumber}q`;
-        while (questionNumber < 10) {
-          let questionUrl = `${assignmentUrl}0${questionNumber}.grg`;
-          let res = await getFile(questionUrl);
-          if (res.status > 400) {
-            console.log("No more questions");
-            return;
-          }
-          let fileName = `${destination}/a0${assignmentNumber}q0${questionNumber}.grg`;
-          console.log(`Saving ${fileName}`);
-
-          let text = await res.text; 
-          text = text.slice(3, text.length);
-          if (groupMembers.length == 2) {
-            text = `#u ${groupMembers[0].trim()} ${groupMembers[1].trim()}\n${text}`; 
-          } else {
-            text = `#u ${groupMembers[0].trim()}\n${text}`; 
-          }
-          
-          saveToFile(fileName, await text);
-          questionNumber++;
+      const assignmentUrl = `https://www.student.cs.uwaterloo.ca/~se212/asn/a0${assignmentNumber}grg/a0${assignmentNumber}q`;
+      while (questionNumber < 10) {
+        let questionUrl = `${assignmentUrl}0${questionNumber}.grg`;
+        let res = await getFile(questionUrl);
+        if (res.status > 400) {
+          console.log("No more questions");
+          return;
         }
-      });
+        let fileName = `${destination}/a0${assignmentNumber}q0${questionNumber}.grg`;
+        console.log(`Saving ${fileName}`);
+
+        text = res.text.slice(3, res.text.length);
+        if (groupMembers.length == 2) {
+          text = `#u ${members[0].trim()} ${members[1].trim()}\n${text}`; 
+        } else {
+          text = `#u ${members[0].trim()}\n${text}`; 
+        }
+        
+        saveToFile(fileName, await text);
+        questionNumber++;
+      }
   } catch (err) {
     console.log(err);
   } 
 })();
 
 function getFile(url) {
-  return fetch(url).then(res =>  { 
+  return fetch(url).then(async res =>  { 
     return {
-      text: res.text(),
+      text: await res.text(),
       status: res.status,
     }
   }).catch(err => console.log(err));
