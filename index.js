@@ -7,48 +7,48 @@ const prompts = require("./prompts.json");
 
 (async function main() {
   try {
-    const { assignmentNumber, destination, groupMembers } = await inquirer
-      .prompt([
-        prompts["destination"],
-        { ...prompts["assignmentNumber"], 
-          validate: (value) => {
-            var valid = !isNaN(parseFloat(value));
-            return valid || 'Please enter a number';
-          },
-          filter: Number,
+    const { assignmentNumber, destination, groupMembers } = await inquirer.prompt([
+      prompts["destination"],
+      { ...prompts["assignmentNumber"], 
+        validate: (value) => {
+          var valid = !isNaN(parseFloat(value));
+          return valid || 'Please enter a number';
         },
-        prompts["groupMembers"]
-      ])
+        filter: Number,
+      },
+      prompts["groupMembers"]
+    ]);
 
-      const members = groupMembers.split(",");
+    const members = groupMembers.split(",");
+    console.log(members);
 
-      if (members.length > 2 || members.length == 0) {
-        throw new Error("Invalid WatIAM user IDs entered");
-      } 
+    if (members.length > 2 || members.length == 0) {
+      throw new Error("Invalid WatIAM user IDs entered");
+    } 
 
-      let questionNumber = 1;
+    let questionNumber = 1;
 
-      const assignmentUrl = `https://www.student.cs.uwaterloo.ca/~se212/asn/a0${assignmentNumber}grg/a0${assignmentNumber}q`;
-      while (questionNumber < 10) {
-        let questionUrl = `${assignmentUrl}0${questionNumber}.grg`;
-        let res = await getFile(questionUrl);
-        if (res.status > 400) {
-          console.log("No more questions");
-          return;
-        }
-        let fileName = `${destination}/a0${assignmentNumber}q0${questionNumber}.grg`;
-        console.log(`Saving ${fileName}`);
-
-        text = res.text.slice(3, res.text.length);
-        if (groupMembers.length == 2) {
-          text = `#u ${members[0].trim()} ${members[1].trim()}\n${text}`; 
-        } else {
-          text = `#u ${members[0].trim()}\n${text}`; 
-        }
-        
-        saveToFile(fileName, await text);
-        questionNumber++;
+    const assignmentUrl = `https://www.student.cs.uwaterloo.ca/~se212/asn/a0${assignmentNumber}grg/a0${assignmentNumber}q`;
+    while (questionNumber < 10) {
+      let questionUrl = `${assignmentUrl}0${questionNumber}.grg`;
+      let res = await getFile(questionUrl);
+      if (res.status > 400) {
+        console.log("No more questions");
+        return;
       }
+      let fileName = `${destination}/a0${assignmentNumber}q0${questionNumber}.grg`;
+      console.log(`Saving ${fileName}`);
+
+      text = res.text.slice(3, res.text.length);
+      if (members.length == 2) {
+        text = `#u ${members[0].trim()} ${members[1].trim()}\n${text}`; 
+      } else {
+        text = `#u ${members[0].trim()}\n${text}`; 
+      }
+      
+      saveToFile(fileName, await text);
+      questionNumber++;
+    }
   } catch (err) {
     console.log(err);
   } 
